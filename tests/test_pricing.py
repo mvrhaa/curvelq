@@ -1,7 +1,7 @@
 import numpy as np
 
 from curvelab.curves import LinearCurve
-from curvelab.pricing import discount_factor, price_bond
+from curvelab.pricing import discount_factor, dv01, price_bond, scenarios
 
 
 def test_discount_factor_on_flat_curve():
@@ -21,3 +21,16 @@ def test_bond_exactly_at_par_with_compounding_adjustment():
     coupon = (np.exp(0.05) - 1) * 100
     price = price_bond(curve, coupon, 10)
     assert np.isclose(price, 100)
+
+
+def test_dv01_of_zero_coupon_bond():
+    curve = LinearCurve().fit([1, 30], [5.0, 5.0])
+    price = price_bond(curve, 0, 10)
+    assert np.isclose(dv01(curve, 0, 10), price * (1 - np.exp(-0.001)))
+
+
+def test_prices_fall_when_rates_rise():
+    curve = LinearCurve().fit([1, 30], [5.0, 5.0])
+    result = scenarios(curve, 3.0, 10)
+    assert result["dv01"] > 0
+    assert result["parallel_100bp"] < result["steepening_50bp"] < 0
