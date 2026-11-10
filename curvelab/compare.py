@@ -33,15 +33,19 @@ def compare_to_spline(prices):
     return pd.DataFrame(rows, index=["mean abs difference", "max abs difference"]).T
 
 
+def make_comparison(prices):
+    text = "# Bond price by curve method\n\n"
+    text += "Bond: coupon 3%, annual, nominal 100. Curves are built from all 11 maturities. "
+    text += "Differences are in price points (1.00 = 1% of nominal).\n\n"
+    text += to_markdown(compare_to_spline(prices), "comparison") + "\n"
+    return text
+
+
 if __name__ == "__main__":
     os.makedirs("outputs", exist_ok=True)
     table = load_clean()
     prices = price_all_days(table)
     prices.to_csv("outputs/bond_prices.csv", index=False)
-    print(prices.tail(2).round(3))
-    text = "# Bond price by curve method\n\n"
-    text += "Bond: coupon 3%, annual, nominal 100. Curves are built from all 11 maturities. "
-    text += "Differences are in price points (1.00 = 1% of nominal).\n\n"
-    text += to_markdown(compare_to_spline(prices), "comparison") + "\n"
+    text = make_comparison(prices)
     open("outputs/bond_comparison.md", "w").write(text)
     print(text)
