@@ -1,3 +1,4 @@
+import time
 import sys
 import os
 import io
@@ -14,7 +15,12 @@ def download_series(code):
         "startPeriod": config.START_DATE,
         "endPeriod": config.END_DATE,
     }
-    response = requests.get(URL + code, params = params )
+    for attempt in range(5):
+        response = requests.get(URL + code, params=params)
+        if response.status_code == 200:
+            break
+        print("retry", code, response.status_code)
+        time.sleep(5)
     response.raise_for_status()
     df = pd.read_csv(io.StringIO(response.text))
     df = df[["TIME_PERIOD","OBS_VALUE"]]
@@ -41,6 +47,18 @@ def load_yields(refresh=False):
     print("downloading from ECB")
     return download_all()
 
+def check_data(table):
+    print("days",len(table))
+    print("missing values per maturity:")
+    print(table.isna().sum())
+    print("days with missing maturities:",table.isna().any(axis=1).sum())
+    jumps = table.diff().abs()>0.5
+    print("jumps over 50 bp per maturity:")
+    print(jumps.sum())
+    print("dates with jumps:")
+    print(table.index[jumps.any(axis=1)].tolist())
+
 if __name__ == "__main__":
     table = load_yields(refresh="--refresh" in sys.argv)
     print(table.shape)
+    check_data(table)
