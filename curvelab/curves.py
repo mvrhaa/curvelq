@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import CubicSpline
 
 class Curve:
     def fit(self,maturities,yields):
@@ -14,3 +15,10 @@ class LinearCurve(Curve):
 
     def rate(self, t):
         return np.interp(t, self.maturities, self.yields)
+
+class SplineCurve(Curve):
+    def fit(self,maturities,yields):
+        self.spline = CubicSpline(maturities,yields,bc_type="natural")
+        return self
+    def rate(self,t):
+        return self.spline(t)
