@@ -65,6 +65,21 @@ def plot_ns_params(params):
     plt.close()
 
 
+def plot_holdout_errors(errors):
+    months = errors["date"].dt.to_period("M").dt.to_timestamp()
+    squared = errors["error_bp"] ** 2
+    monthly = np.sqrt(squared.groupby([months, errors["method"]]).mean()).unstack()
+    plt.figure(figsize=(8, 5))
+    for method in monthly.columns:
+        plt.plot(monthly.index, monthly[method], label=method)
+    plt.xlabel("Date")
+    plt.ylabel("Monthly holdout RMSE, bp")
+    plt.title("Holdout error over time (hidden 2Y, 7Y, 15Y)")
+    plt.legend()
+    plt.savefig("outputs/holdout_errors.png", dpi=150)
+    plt.close()
+
+
 if __name__ == "__main__":
     os.makedirs("outputs", exist_ok=True)
     table = load_clean()

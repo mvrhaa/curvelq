@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from curvelab.plots import plot_holdout_errors
+
 
 def rmse(errors):
     return np.sqrt((errors ** 2).mean())
@@ -33,3 +35,4 @@ if __name__ == "__main__":
     text = make_summary(errors)
     open("outputs/summary.md", "w").write(text)
     print(text)
+    plot_holdout_errors(errors)
