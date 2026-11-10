@@ -29,6 +29,14 @@ class SplineCurve(Curve):
         return self.spline(t)
 
 
+def ns_factors(t, lam):
+    t = np.array(t, dtype=float)
+    x = lam * t
+    slope = (1 - np.exp(-x)) / x
+    hump = slope - np.exp(-x)
+    return slope, hump
+
+
 def ns_rate(t, b0, b1, b2, lam):
     """
     Nelson-Siegel rate for maturity t (in years).
@@ -38,8 +46,13 @@ def ns_rate(t, b0, b1, b2, lam):
     b2 is the curvature: a hump in the middle, zero at both ends.
     lam sets where the hump is: bigger lam moves it to shorter maturities.
     """
-    t = np.array(t, dtype=float)
-    x = lam * t
-    slope = (1 - np.exp(-x)) / x
-    hump = slope - np.exp(-x)
+    slope, hump = ns_factors(t, lam)
     return b0 + b1 * slope + b2 * hump
+
+
+def fit_ns_betas(maturities, yields, lam):
+    slope, hump = ns_factors(maturities, lam)
+    X = np.column_stack([np.ones(len(slope)), slope, hump])
+    y = np.array(yields, dtype=float)
+    betas = np.linalg.lstsq(X, y, rcond=None)[0]
+    return betas
