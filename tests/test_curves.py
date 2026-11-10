@@ -1,5 +1,5 @@
 import numpy as np
-from curvelab.curves import LinearCurve
+from curvelab.curves import LinearCurve, SplineCurve
 
 
 MATURITIES = [0.25,1,2,5,10,30]
@@ -14,3 +14,7 @@ def test_linear_is_flat_outside_range():
     curve=LinearCurve().fit(MATURITIES,YIELDS)
     assert curve.rate(0.01) == 3.5
     assert curve.rate(50) == 3.0
+
+def test_spline_passes_through_points():
+    curve = SplineCurve().fit(MATURITIES,YIELDS)
+    assert np.allclose(curve.rate(MATURITIES),YIELDS)

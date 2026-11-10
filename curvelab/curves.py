@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import CubicSpline
 
+
 class Curve:
     def fit(self,maturities,yields):
         raise NotImplementedError
