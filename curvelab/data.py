@@ -1,3 +1,4 @@
+import os
 import io
 import pandas as pd
 import requests
@@ -18,3 +19,13 @@ def download_series(code):
     df.columns = ["date","rate"]
     df["date"] = pd.to_datetime(df["date"])
     return df
+
+def download_all():
+    columns = {}
+    for maturity,code in config.ECB_CODES.items():
+        df = download_series(code)
+        columns[maturity] = df.set_index("date")["rate"]
+    table = pd.concat(columns, axis=1)
+    os.makedirs("data/raw", exist_ok=True)
+    table.to_csv("data/raw/yields.csv")
+    return table
