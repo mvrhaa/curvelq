@@ -1,3 +1,4 @@
+import sys
 import os
 import io
 import pandas as pd
@@ -5,6 +6,7 @@ import requests
 from curvelab import config
 
 URL = "https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM."
+PATH = "data/raw/yields.csv"
 
 def download_series(code):
     params = {
@@ -29,3 +31,16 @@ def download_all():
     os.makedirs("data/raw", exist_ok=True)
     table.to_csv("data/raw/yields.csv")
     return table
+
+def load_yields(refresh=False):
+    if os.path.exists(PATH) and not refresh:
+        print("reading from cache")
+        table = pd.read_csv(PATH, index_col="date", parse_dates=True)
+        table.columns = table.columns.astype(float)
+        return table
+    print("downloading from ECB")
+    return download_all()
+
+if __name__ == "__main__":
+    table = load_yields(refresh="--refresh" in sys.argv)
+    print(table.shape)
