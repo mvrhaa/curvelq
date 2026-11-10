@@ -10,6 +10,7 @@ DATES = ["2019-06-28", "2020-08-31", "2022-06-30", "2023-06-30"]
 
 
 def plot_curves(table):
+    """Yield curves on four dates."""
     plt.figure(figsize=(8, 5))
     for date in DATES:
         row = table.loc[:date].iloc[-1]
@@ -24,6 +25,7 @@ def plot_curves(table):
 
 
 def plot_10y(table):
+    """History of the 10Y rate."""
     plt.figure(figsize=(8, 5))
     plt.plot(table.index, table[10.0])
     plt.axhline(0, color="gray", linewidth=0.8)
@@ -35,6 +37,7 @@ def plot_10y(table):
 
 
 def plot_linear_vs_spline(table, date):
+    """Linear and spline curves on one day."""
     row = table.loc[:date].iloc[-1]
     grid = np.linspace(0.25, 30, 300)
     linear = LinearCurve().fit(row.index, row.values)
@@ -52,6 +55,7 @@ def plot_linear_vs_spline(table, date):
 
 
 def plot_ns_params(params):
+    """Nelson-Siegel betas over time."""
     plt.figure(figsize=(8, 5))
     plt.plot(params.index, params["b0"], label="b0 level")
     plt.plot(params.index, params["b1"], label="b1 slope")
@@ -66,6 +70,7 @@ def plot_ns_params(params):
 
 
 def plot_holdout_errors(errors):
+    """Monthly holdout RMSE for each method."""
     months = errors["date"].dt.to_period("M").dt.to_timestamp()
     squared = errors["error_bp"] ** 2
     monthly = np.sqrt(squared.groupby([months, errors["method"]]).mean()).unstack()

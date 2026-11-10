@@ -5,6 +5,7 @@ from curvelab import compare, data, holdout, ns_params, plots, summary
 
 
 def run(refresh):
+    """Run the full pipeline: data, plots, Nelson-Siegel parameters, holdout, summary, bond prices."""
     os.makedirs("outputs", exist_ok=True)
 
     print("1/6 data")

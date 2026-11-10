@@ -12,6 +12,7 @@ BONDS = [10, 30]
 
 
 def price_all_days(table):
+    """Price the 10Y and 30Y bonds from every curve method on every day."""
     rows = []
     for date, row in table.iterrows():
         curves = {}
@@ -24,6 +25,7 @@ def price_all_days(table):
 
 
 def compare_to_spline(prices):
+    """Mean and max price difference of linear and Nelson-Siegel against the spline."""
     rows = {}
     for years in BONDS:
         bond = prices[prices["years"] == years]
@@ -34,6 +36,7 @@ def compare_to_spline(prices):
 
 
 def make_comparison(prices):
+    """The comparison table as markdown text."""
     text = "# Bond price by curve method\n\n"
     text += "Bond: coupon 3%, annual, nominal 100. Curves are built from all 11 maturities. "
     text += "Differences are in price points (1.00 = 1% of nominal).\n\n"

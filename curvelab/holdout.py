@@ -14,12 +14,14 @@ METHODS = {
 
 
 def split_maturities(maturities, hidden=HIDDEN):
+    """Split maturities into known ones and hidden ones."""
     known = [m for m in maturities if m not in hidden]
     hidden = [m for m in maturities if m in hidden]
     return known, hidden
 
 
 def holdout_error(curve, row, hidden=HIDDEN):
+    """Build the curve from known maturities and return the error on hidden ones in bp."""
     known, hidden = split_maturities(row.index, hidden)
     curve.fit(known, row[known].values)
     errors = (curve.rate(hidden) - row[hidden].values) * 100
@@ -27,6 +29,7 @@ def holdout_error(curve, row, hidden=HIDDEN):
 
 
 def run_holdout(table):
+    """Run the holdout test for every day and every method. One row per date, method and maturity."""
     rows = []
     for date, row in table.iterrows():
         for name, method in METHODS.items():

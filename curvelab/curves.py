@@ -3,6 +3,8 @@ from scipy.interpolate import CubicSpline
 
 
 class Curve:
+    """Common shape of every method: fit on known points, then ask the rate for any maturity."""
+
     def fit(self, maturities, yields):
         raise NotImplementedError
 
@@ -11,6 +13,8 @@ class Curve:
 
 
 class LinearCurve(Curve):
+    """Straight lines between points, flat outside the range."""
+
     def fit(self, maturities, yields):
         self.maturities = np.array(maturities, dtype=float)
         self.yields = np.array(yields, dtype=float)
@@ -21,6 +25,8 @@ class LinearCurve(Curve):
 
 
 class SplineCurve(Curve):
+    """Smooth cubic spline through all points."""
+
     def fit(self, maturities, yields):
         self.spline = CubicSpline(maturities, yields, bc_type="natural")
         return self
@@ -30,6 +36,7 @@ class SplineCurve(Curve):
 
 
 def ns_factors(t, lam):
+    """The two Nelson-Siegel factors that multiply b1 (slope) and b2 (hump)."""
     t = np.array(t, dtype=float)
     x = lam * t
     slope = (1 - np.exp(-x)) / x
@@ -51,6 +58,7 @@ def ns_rate(t, b0, b1, b2, lam):
 
 
 def fit_ns_betas(maturities, yields, lam):
+    """Find b0, b1, b2 for a fixed lambda with a linear regression."""
     slope, hump = ns_factors(maturities, lam)
     X = np.column_stack([np.ones(len(slope)), slope, hump])
     y = np.array(yields, dtype=float)
@@ -62,6 +70,8 @@ LAMBDAS = np.arange(0.1, 3.01, 0.05)
 
 
 class NelsonSiegelCurve(Curve):
+    """Nelson-Siegel curve. Tries every lambda on the grid and keeps the one with the smallest error."""
+
     def fit(self, maturities, yields):
         y = np.array(yields, dtype=float)
         best_error = None

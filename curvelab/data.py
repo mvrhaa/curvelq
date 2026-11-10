@@ -11,6 +11,7 @@ PATH = "data/raw/yields.csv"
 CLEAN_PATH = "data/clean/yields.csv"
 
 def download_series(code):
+    """Download one maturity from the ECB API. Returns a table with date and rate in percent."""
     params = {
         "format":"csvdata",
         "startPeriod": config.START_DATE,
@@ -30,6 +31,7 @@ def download_series(code):
     return df
 
 def download_all():
+    """Download all maturities and merge them into one table: rows are dates, columns are maturities in years."""
     columns = {}
     for maturity,code in config.ECB_CODES.items():
         df = download_series(code)
@@ -40,6 +42,7 @@ def download_all():
     return table
 
 def load_yields(refresh=False):
+    """Read the raw table from the CSV cache, or download it if there is no cache or refresh is asked."""
     if os.path.exists(PATH) and not refresh:
         print("reading from cache")
         table = pd.read_csv(PATH, index_col="date", parse_dates=True)
@@ -49,6 +52,7 @@ def load_yields(refresh=False):
     return download_all()
 
 def check_data(table):
+    """Print a short report: missing values, incomplete days and daily jumps above 50 bp."""
     print("days",len(table))
     print("missing values per maturity:")
     print(table.isna().sum())
@@ -60,6 +64,7 @@ def check_data(table):
     print(table.index[jumps.any(axis=1)].tolist())
 
 def clean_data(table):
+    """Drop days with missing values and save the clean table."""
     clean = table.dropna()
     os.makedirs("data/clean", exist_ok=True)
     clean.to_csv(CLEAN_PATH)
@@ -68,6 +73,7 @@ def clean_data(table):
 
 
 def load_clean():
+    """Read the clean table saved by clean_data."""
     table = pd.read_csv(CLEAN_PATH, index_col="date", parse_dates=True)
     table.columns = table.columns.astype(float)
     return table

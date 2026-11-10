@@ -5,10 +5,12 @@ from curvelab.plots import plot_holdout_errors
 
 
 def rmse(errors):
+    """Root mean squared error."""
     return np.sqrt((errors ** 2).mean())
 
 
 def to_markdown(table, first_column):
+    """Turn a table into markdown text."""
     lines = ["| " + first_column + " | " + " | ".join(str(c) for c in table.columns) + " |"]
     lines.append("|---" * (len(table.columns) + 1) + "|")
     for name, row in table.iterrows():
@@ -17,6 +19,7 @@ def to_markdown(table, first_column):
 
 
 def make_summary(errors):
+    """RMSE in bp by method, by maturity and by year, as markdown text."""
     by_method = errors.groupby("method")["error_bp"].apply(rmse).to_frame("RMSE, bp")
     by_maturity = errors.groupby(["method", "maturity"])["error_bp"].apply(rmse).unstack()
     by_maturity.columns = ["%gY" % m for m in by_maturity.columns]

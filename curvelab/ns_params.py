@@ -8,6 +8,7 @@ from curvelab.plots import plot_ns_params
 
 
 def fit_all_days(table):
+    """Fit Nelson-Siegel on every day. Returns a table with b0, b1, b2 and lambda by date."""
     rows = []
     for date, row in table.iterrows():
         curve = NelsonSiegelCurve().fit(row.index, row.values)
