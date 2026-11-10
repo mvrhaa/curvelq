@@ -51,6 +51,20 @@ def plot_linear_vs_spline(table, date):
     plt.close()
 
 
+def plot_ns_params(params):
+    plt.figure(figsize=(8, 5))
+    plt.plot(params.index, params["b0"], label="b0 level")
+    plt.plot(params.index, params["b1"], label="b1 slope")
+    plt.plot(params.index, params["b2"], label="b2 curvature")
+    plt.axhline(0, color="gray", linewidth=0.8)
+    plt.xlabel("Date")
+    plt.ylabel("Value, %")
+    plt.title("Nelson-Siegel parameters over time")
+    plt.legend()
+    plt.savefig("outputs/ns_params.png", dpi=150)
+    plt.close()
+
+
 if __name__ == "__main__":
     os.makedirs("outputs", exist_ok=True)
     table = load_clean()
