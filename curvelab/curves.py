@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.interpolate import CubicSpline
-
+from curvelab.curves import LinearCurve, SplineCurve, ns_rate
 
 class Curve:
     def fit(self,maturities,yields):
@@ -36,3 +36,12 @@ class SplineCurve(Curve):
         slope = (1 - np.exp(-x)) / x
         hump = slope - np.exp(-x)
         return b0 + b1 * slope + b2 * hump
+
+    def test_ns_long_end_goes_to_b0():
+        rate = ns_rate(10000, 3.0, -2.0, 1.0, 0.5)
+        assert abs(rate - 3.0) < 0.001
+
+
+    def test_ns_short_end_goes_to_b0_plus_b1():
+        rate = ns_rate(0.000001, 3.0, -2.0, 1.0, 0.5)
+        assert abs(rate - 1.0) < 0.001
