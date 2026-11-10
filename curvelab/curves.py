@@ -56,3 +56,24 @@ def fit_ns_betas(maturities, yields, lam):
     y = np.array(yields, dtype=float)
     betas = np.linalg.lstsq(X, y, rcond=None)[0]
     return betas
+
+
+LAMBDAS = np.arange(0.1, 3.01, 0.05)
+
+
+class NelsonSiegelCurve(Curve):
+    def fit(self, maturities, yields):
+        y = np.array(yields, dtype=float)
+        best_error = None
+        for lam in LAMBDAS:
+            betas = fit_ns_betas(maturities, y, lam)
+            fitted = ns_rate(maturities, betas[0], betas[1], betas[2], lam)
+            error = np.sum((fitted - y) ** 2)
+            if best_error is None or error < best_error:
+                best_error = error
+                self.betas = betas
+                self.lam = lam
+        return self
+
+    def rate(self, t):
+        return ns_rate(t, self.betas[0], self.betas[1], self.betas[2], self.lam)
