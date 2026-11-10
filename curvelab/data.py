@@ -58,6 +58,11 @@ def check_data(table):
     print("dates with jumps:")
     print(table.index[jumps.any(axis=1)].tolist())
 
+def load_clean():
+    table = pd.read_csv(CLEAN_PATH, index_col="date", parse_dates=True)
+    table.columns = table.columns.astype(float)
+    return table
+
 if __name__ == "__main__":
     table = load_yields(refresh="--refresh" in sys.argv)
     print(table.shape)
